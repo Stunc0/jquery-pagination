@@ -24,9 +24,9 @@ To use this plugin, simply import jquery library and include this sample of code
     				[20, '20'],
     				[50, '50'],
     				[100, '100'],
-    				[0, '{{t('app', 'all')}}']
+    				[0, 'All']
     			],
-    			rangeSelectorLabel: '{{t('app', 'result-per-page')}}'
+    			rangeSelectorLabel: 'Results per page: '
         	});
     });
     </script>
