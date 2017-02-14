@@ -17,8 +17,17 @@ To use this plugin, simply import jquery library and include this sample of code
     	    effect: 'default',
     			scrollToTop: true,
     			scrollToTopElementId: 'content', //id of the element you want to scroll to.
-    			scrollToTopTime: 1000
-    	});
+    			scrollToTopTime: 1000,
+          defaultRange: [
+    				[4, '4'],
+    				[10, '10'],
+    				[20, '20'],
+    				[50, '50'],
+    				[100, '100'],
+    				[0, '{{t('app', 'all')}}']
+    			],
+    			rangeSelectorLabel: '{{t('app', 'result-per-page')}}'
+        	});
     });
     </script>
 

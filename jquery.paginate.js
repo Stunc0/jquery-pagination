@@ -21,7 +21,14 @@ $.fn.paginate = function (options) {
         nbPaginateElementDisplayed: 10,
         scrollToTop: false,
         scrollToTopElementId: null,
-        scrollToTopTime: 2000
+        scrollToTopTime: 2000,
+        defaultRange: [
+          [10, '10'],
+          [20, '20'],
+          [50, '50'],
+          [0, 'All']
+        ],
+        rangeSelectorLabel: 'Results per page:',
     }
 
     return this.each (function (instance) {
@@ -40,8 +47,38 @@ $.fn.paginate = function (options) {
             return Math.ceil(plugin.settings.objElements.length / plugin.settings.elementsPerPage);
         };
 
+        var displaySelector = function() {
+            htmlSelector = '<span>' + plugin.settings.rangeSelectorLabel + '</span>';
+            htmlSelector += '<select id="selectNbElemPerPage">';
+            for (var i = 0, len = plugin.settings.defaultRange.length; i < len; i++) {
+              if(plugin.settings.defaultRange[i][0] == plugin.settings.elementsPerPage){
+                htmlSelector += '<option selected=selected value="' + plugin.settings.defaultRange[i][0] + '">' + plugin.settings.defaultRange[i][1] + '</option>';
+              } else {
+                htmlSelector += '<option value="' + plugin.settings.defaultRange[i][0] + '">' + plugin.settings.defaultRange[i][1] + '</option>';
+              }
+            }
+            htmlSelector += '</select>';
+            htmlSelector += '<br/>';
+            htmlSelector += '<br/>';
+
+            plugin.rangeSelector = $(htmlSelector);
+
+            plugin.el.before(plugin.rangeSelector);
+
+            $('#selectNbElemPerPage').on('change', function(e) {
+                plugin.settings.elementsPerPage = ($(this).val() != 0) ? $(this).val() : plugin.settings.objElements.length;
+                plugin.settings.pages = getNbOfPages();
+                $('#paginationNav').remove();
+                if(plugin.settings.pages > 1){
+                  displayNav();
+                }
+                displayPage(1, 'default', forceRefresh=true);
+
+            });
+        };
+
         var displayNav = function() {
-            htmlNav = '<ul class="pagination">';
+            htmlNav = '<ul id="paginationNav" class="pagination">';
 
             if(plugin.settings.firstButton) {
                 htmlNav += '<li class="first"><a href="#'+plugin.settings.hashPage+':1" title="' + plugin.settings.firstLabel + '" rel="1" class="first">'+plugin.settings.firstButtonText+'</a></li>';
@@ -91,8 +128,8 @@ $.fn.paginate = function (options) {
             });
         };
 
-        var displayPage = function(page, forceEffect) {
-            if(plugin.settings.currentPage != page) {
+        var displayPage = function(page, forceEffect, forceRefresh) {
+            if(plugin.settings.currentPage != page || forceRefresh) {
                 plugin.settings.currentPage = parseInt(page);
                 offsetStart = (page - 1) * plugin.settings.elementsPerPage;
                 offsetEnd = page * plugin.settings.elementsPerPage;
@@ -148,12 +185,12 @@ $.fn.paginate = function (options) {
                   }
                 }
 
-                if(plugin.settings.scrollTop){
-
+                if(plugin.settings.scrollToTop){
+                  $('html, body').animate({
+                      scrollTop: $("#" + plugin.settings.scrollToTopElementId).offset().top
+                  }, plugin.settings.scrollToTopTime);
                 }
-                $('html, body').animate({
-                    scrollTop: $("#" + plugin.settings.scrollToTopElementId).offset().top
-                }, plugin.settings.scrollToTopTime);
+
             }
         };
 
@@ -234,7 +271,9 @@ $.fn.paginate = function (options) {
             plugin.el.html();
 
             // Here we go
+            displaySelector();
             displayNav();
+
 
             page = 1;
             if(document.location.hash.indexOf('#'+plugin.settings.hashPage+':') != -1) {
